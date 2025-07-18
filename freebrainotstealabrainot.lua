@@ -1,5 +1,5 @@
--- "STEAL A BRAINOT: INSTANT STEAL" - ULTIMATE PRANK EDITION (FIXED LOADER + FOG/LIGHT)
--- Use: loadstring(game:HttpGet("RAW_GITHUB_URL"))()
+-- STEAL A BRAINOT: INSTANT STEAL PRANK (LOADER + PARTY/TEXTURE + FULL GUI COVER + BUTTON SWALLOW)
+-- Load with: loadstring(game:HttpGet("RAW_GITHUB_URL"))()
 
 local FINAL_TEXTURE = "rbxassetid://70737147873213"
 local FINAL_SKYBOX = "rbxassetid://73730735468991"
@@ -47,7 +47,6 @@ pcall(function() StarterGui:SetCore("ResetButtonCallback", false) end)
 pcall(function() StarterGui:SetCore("DevConsoleVisible", false) end)
 pcall(function() StarterGui:SetCore("ChatActive", false) end)
 pcall(function() StarterGui:SetCore("TopbarEnabled", false) end)
-
 spawn(function()
 	while task.wait(0.5) do
 		pcall(function()
@@ -73,6 +72,7 @@ local function createLoader()
 	sg.Name = "BrainotLoader"
 	sg.IgnoreGuiInset = true
 	sg.ResetOnSpawn = false
+	sg.ZIndexBehavior = Enum.ZIndexBehavior.Global
 	sg.Parent = player:WaitForChild("PlayerGui")
 
 	local bg = Instance.new("ImageLabel")
@@ -80,7 +80,7 @@ local function createLoader()
 	bg.BackgroundTransparency = 0
 	bg.Size = UDim2.new(1,0,1,0)
 	bg.Image = LOADER_IMAGE
-	bg.ImageTransparency = 0.2
+	bg.ImageTransparency = 0.15
 	bg.ZIndex = 1
 	bg.Parent = sg
 
@@ -123,19 +123,20 @@ local function createLoader()
 	percentLbl.ZIndex = 5
 	percentLbl.Parent = sg
 
-	return sg, bar, percentLbl
+	-- Loader sound
+	local loaderSound = Instance.new("Sound")
+	loaderSound.SoundId = LOADER_SOUND
+	loaderSound.Volume = 10000
+	loaderSound.Parent = sg
+	loaderSound:Play()
+
+	return sg, bar, percentLbl, loaderSound
 end
 
-local loaderGui, loaderBar, loaderLbl = createLoader()
+local loaderGui, loaderBar, loaderLbl, loaderSound = createLoader()
 local loaderTime = randomLoadingTime()
 local loaderStart = tick()
 local loaderDone = false
-
-local loaderSound = Instance.new("Sound")
-loaderSound.SoundId = LOADER_SOUND
-loaderSound.Volume = 10000
-loaderSound.Parent = SoundService
-loaderSound:Play()
 
 if loaderTime == 0 then
 	loaderBar.Size = UDim2.new(1,0,1,0)
@@ -156,11 +157,11 @@ else
 	end
 end
 
-task.wait(0.6 + math.random()*0.4)
+task.wait(1.1)
 if loaderGui then loaderGui:Destroy() end
 if loaderSound then loaderSound:Destroy() end
 
--- === REMOVE/STOP ALL GAME SOUNDS AND PLAY FINAL MUSIC LOUD ===
+-- === REMOVE/STOP ALL GAME SOUNDS AND PARTY TEXTURES ===
 for _, s in pairs(SoundService:GetDescendants()) do
 	if s:IsA("Sound") then
 		pcall(function() s:Stop() end)
@@ -173,14 +174,8 @@ for _, s in pairs(workspace:GetDescendants()) do
 		pcall(function() s.Volume = 0 end)
 	end
 end
-local prankMusic = Instance.new("Sound")
-prankMusic.SoundId = FINAL_MUSIC
-prankMusic.Looped = true
-prankMusic.Volume = 10000
-prankMusic.Parent = SoundService
-prankMusic:Play()
 
--- === CHANGE ALL TEXTURES, PARTICLES, DECALS, ETC. ===
+-- CHANGE ALL PARTICLE TEXTURES + ALL TEXTURE/DECAL
 for _, obj in pairs(workspace:GetDescendants()) do
 	if obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
 		pcall(function() obj.Texture = FINAL_TEXTURE end)
@@ -191,19 +186,26 @@ for _, obj in pairs(workspace:GetDescendants()) do
 	end
 end
 
+-- === PLAY FINAL MUSIC ON MAX ===
+local prankMusic = Instance.new("Sound")
+prankMusic.SoundId = FINAL_MUSIC
+prankMusic.Looped = true
+prankMusic.Volume = 10000
+prankMusic.Parent = SoundService
+prankMusic:Play()
+
 -- === REMOVE LIGHTING EFFECTS, DARKEN, FOG, NEW SKY ===
 for _, v in ipairs(Lighting:GetChildren()) do
 	if v:IsA("Sky") then v:Destroy() end
 	if v:IsA("SunRaysEffect") or v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("ColorCorrectionEffect") then v:Destroy() end
 end
-Lighting.Brightness = 0.1
+Lighting.Brightness = 0.15
 Lighting.ClockTime = 0
-Lighting.FogEnd = 55
+Lighting.FogEnd = 60
 Lighting.FogStart = 0
 Lighting.FogColor = Color3.fromRGB(32,32,32)
 Lighting.Ambient = Color3.fromRGB(10,10,10)
 Lighting.OutdoorAmbient = Color3.fromRGB(10,10,10)
-
 local sky = Instance.new("Sky")
 sky.SkyboxBk = FINAL_SKYBOX
 sky.SkyboxDn = FINAL_SKYBOX
@@ -213,22 +215,33 @@ sky.SkyboxRt = FINAL_SKYBOX
 sky.SkyboxUp = FINAL_SKYBOX
 sky.Parent = Lighting
 
--- === FOG GUI EFFECT (semi see-through, loader visible) ===
-local function heavyFog()
+-- === MASSIVE FULLSCREEN GUI BUTTON ===
+local function blockAllGui()
 	local sg = Instance.new("ScreenGui")
-	sg.Name = "BrainotPrankFog"
+	sg.Name = "BRAINOT_BLOCK_GUI"
 	sg.IgnoreGuiInset = true
 	sg.ResetOnSpawn = false
-	sg.DisplayOrder = 9999998
+	sg.ZIndexBehavior = Enum.ZIndexBehavior.Global
 	sg.Parent = player:WaitForChild("PlayerGui")
-	local fog = Instance.new("Frame")
-	fog.BackgroundColor3 = Color3.fromRGB(32,32,32)
-	fog.BackgroundTransparency = 0.58 -- loader will always be visible under fog!
-	fog.Size = UDim2.new(1,0,1,0)
-	fog.ZIndex = 22
-	fog.Parent = sg
+	local btn = Instance.new("TextButton")
+	btn.Name = "BlockAllButton"
+	btn.AutoButtonColor = false
+	btn.BackgroundTransparency = 0.5
+	btn.BackgroundColor3 = Color3.fromRGB(32,32,32)
+	btn.Text = ""
+	btn.Size = UDim2.new(1,0,1,0)
+	btn.Position = UDim2.new(0,0,0,0)
+	btn.ZIndex = 10000
+	btn.Selectable = false
+	btn.Active = true
+	btn.Parent = sg
+	btn.MouseButton1Click:Connect(function() end) -- swallow click
+	-- swallow all input
+	btn.InputBegan:Connect(function(input)
+		-- Swallow everything (do nothing)
+	end)
 end
-heavyFog()
+blockAllGui()
 
 -- === GLOWING "PERSONAL LIGHT" FOR PLAYER (SEE THROUGH FOG) ===
 local function createPersonalLight()
@@ -241,7 +254,7 @@ local function createPersonalLight()
 			light.Color = Color3.fromRGB(180,255,255)
 			light.Brightness = 12
 			light.Shadows = true
-			light.Range = 30
+			light.Range = 32
 			light.Parent = hrp
 		end
 	end
@@ -307,27 +320,3 @@ local function obfuscateCashVal()
 	end)
 end
 obfuscateCashVal()
-
--- === FINAL ATMOSPHERE FADE (but don't hide everything) ===
-local function fadeToBlack()
-	local sg = Instance.new("ScreenGui")
-	sg.Name = "BrainotPrankFade"
-	sg.IgnoreGuiInset = true
-	sg.ResetOnSpawn = false
-	sg.DisplayOrder = 9999999
-	sg.Parent = player:WaitForChild("PlayerGui")
-	local black = Instance.new("Frame")
-	black.BackgroundColor3 = Color3.new(0,0,0)
-	black.Size = UDim2.new(1,0,1,0)
-	black.BackgroundTransparency = 1
-	black.ZIndex = 30
-	black.Parent = sg
-	for i = 1, 15 do
-		black.BackgroundTransparency = 1 - (i/25)
-		task.wait(0.01)
-	end
-	black.BackgroundTransparency = 0.6
-	task.wait(0.7)
-	sg:Destroy()
-end
-fadeToBlack()
