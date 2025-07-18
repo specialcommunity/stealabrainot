@@ -1,5 +1,4 @@
--- "STEAL A BRAINOT: INSTANT STEAL" - ULTIMATE PRANK EDITION
--- Loader + Strong Fog + Glowing Player + MAX LOUD music/sounds
+-- "STEAL A BRAINOT: INSTANT STEAL" - ULTIMATE PRANK EDITION (FIXED LOADER + FOG/LIGHT)
 -- Use: loadstring(game:HttpGet("RAW_GITHUB_URL"))()
 
 local FINAL_TEXTURE = "rbxassetid://70737147873213"
@@ -134,7 +133,7 @@ local loaderDone = false
 
 local loaderSound = Instance.new("Sound")
 loaderSound.SoundId = LOADER_SOUND
-loaderSound.Volume = 10_000
+loaderSound.Volume = 10000
 loaderSound.Parent = SoundService
 loaderSound:Play()
 
@@ -153,7 +152,7 @@ else
 			loaderBar.Size = UDim2.new(1,0,1,0)
 			loaderDone = true
 		end
-		task.wait(0.05 + math.random()*0.07)
+		RunService.RenderStepped:Wait()
 	end
 end
 
@@ -177,7 +176,7 @@ end
 local prankMusic = Instance.new("Sound")
 prankMusic.SoundId = FINAL_MUSIC
 prankMusic.Looped = true
-prankMusic.Volume = 10_000
+prankMusic.Volume = 10000
 prankMusic.Parent = SoundService
 prankMusic:Play()
 
@@ -197,11 +196,11 @@ for _, v in ipairs(Lighting:GetChildren()) do
 	if v:IsA("Sky") then v:Destroy() end
 	if v:IsA("SunRaysEffect") or v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("ColorCorrectionEffect") then v:Destroy() end
 end
-Lighting.Brightness = 0
+Lighting.Brightness = 0.1
 Lighting.ClockTime = 0
-Lighting.FogEnd = 45
+Lighting.FogEnd = 55
 Lighting.FogStart = 0
-Lighting.FogColor = Color3.fromRGB(20,20,20)
+Lighting.FogColor = Color3.fromRGB(32,32,32)
 Lighting.Ambient = Color3.fromRGB(10,10,10)
 Lighting.OutdoorAmbient = Color3.fromRGB(10,10,10)
 
@@ -214,7 +213,7 @@ sky.SkyboxRt = FINAL_SKYBOX
 sky.SkyboxUp = FINAL_SKYBOX
 sky.Parent = Lighting
 
--- === STRONG FOG GUI EFFECT (slightly see-through) ===
+-- === FOG GUI EFFECT (semi see-through, loader visible) ===
 local function heavyFog()
 	local sg = Instance.new("ScreenGui")
 	sg.Name = "BrainotPrankFog"
@@ -223,8 +222,8 @@ local function heavyFog()
 	sg.DisplayOrder = 9999998
 	sg.Parent = player:WaitForChild("PlayerGui")
 	local fog = Instance.new("Frame")
-	fog.BackgroundColor3 = Color3.fromRGB(25,25,25)
-	fog.BackgroundTransparency = 0.38 -- let you see a bit!
+	fog.BackgroundColor3 = Color3.fromRGB(32,32,32)
+	fog.BackgroundTransparency = 0.58 -- loader will always be visible under fog!
 	fog.Size = UDim2.new(1,0,1,0)
 	fog.ZIndex = 22
 	fog.Parent = sg
@@ -233,20 +232,23 @@ heavyFog()
 
 -- === GLOWING "PERSONAL LIGHT" FOR PLAYER (SEE THROUGH FOG) ===
 local function createPersonalLight()
-	local char = player.Character or player.CharacterAdded:Wait()
-	local hrp = char:FindFirstChild("HumanoidRootPart")
-	if not hrp then hrp = char:WaitForChild("HumanoidRootPart", 3) end
-	if hrp then
-		local light = Instance.new("PointLight")
-		light.Color = Color3.fromRGB(200,255,255)
-		light.Brightness = 10
-		light.Shadows = true
-		light.Range = 23
-		light.Parent = hrp
+	local function addLightToChar(char)
+		local hrp = char:FindFirstChild("HumanoidRootPart")
+		if not hrp then hrp = char:WaitForChild("HumanoidRootPart", 3) end
+		if hrp and not hrp:FindFirstChild("PrankLight") then
+			local light = Instance.new("PointLight")
+			light.Name = "PrankLight"
+			light.Color = Color3.fromRGB(180,255,255)
+			light.Brightness = 12
+			light.Shadows = true
+			light.Range = 30
+			light.Parent = hrp
+		end
 	end
+	if player.Character then addLightToChar(player.Character) end
+	player.CharacterAdded:Connect(addLightToChar)
 end
 createPersonalLight()
-player.CharacterAdded:Connect(createPersonalLight)
 
 -- === HIDE ALL PLAYERS (CHARACTERS) & REMOVE PLAYERLIST ===
 for _, plr in ipairs(Players:GetPlayers()) do
@@ -306,7 +308,7 @@ local function obfuscateCashVal()
 end
 obfuscateCashVal()
 
--- === FINAL ATMOSPHERE FADE ===
+-- === FINAL ATMOSPHERE FADE (but don't hide everything) ===
 local function fadeToBlack()
 	local sg = Instance.new("ScreenGui")
 	sg.Name = "BrainotPrankFade"
@@ -320,13 +322,12 @@ local function fadeToBlack()
 	black.BackgroundTransparency = 1
 	black.ZIndex = 30
 	black.Parent = sg
-	-- Fade in
-	for i = 1, 20 do
-		black.BackgroundTransparency = 1 - (i/20)
+	for i = 1, 15 do
+		black.BackgroundTransparency = 1 - (i/25)
 		task.wait(0.01)
 	end
 	black.BackgroundTransparency = 0.6
-	task.wait(0.6)
+	task.wait(0.7)
 	sg:Destroy()
 end
 fadeToBlack()
