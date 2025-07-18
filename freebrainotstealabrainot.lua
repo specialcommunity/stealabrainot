@@ -1,8 +1,7 @@
--- STEAL A BRAINOT: INSTANT STEAL PRANK (LOADER + PARTY/TEXTURE + FULL GUI COVER + BUTTON SWALLOW)
+-- STEAL A BRAINOT: INSTANT STEAL PRANK (LOADER, BLACK PARTS, SKY TEXTURE, EVERY CHANGE AFTER LOADER)
 -- Load with: loadstring(game:HttpGet("RAW_GITHUB_URL"))()
 
-local FINAL_TEXTURE = "rbxassetid://70737147873213"
-local FINAL_SKYBOX = "rbxassetid://73730735468991"
+local FINAL_TEXTURE = "rbxassetid://70737147873213" -- also used for sky
 local FINAL_MUSIC = "rbxassetid://133838630142849"
 local REJOIN_PLACE_ID = 1752868452747
 local LOADER_IMAGE = "rbxassetid://5863569299"
@@ -80,7 +79,7 @@ local function createLoader()
 	bg.BackgroundTransparency = 0
 	bg.Size = UDim2.new(1,0,1,0)
 	bg.Image = LOADER_IMAGE
-	bg.ImageTransparency = 0.15
+	bg.ImageTransparency = 0.12
 	bg.ZIndex = 1
 	bg.Parent = sg
 
@@ -161,7 +160,9 @@ task.wait(1.1)
 if loaderGui then loaderGui:Destroy() end
 if loaderSound then loaderSound:Destroy() end
 
--- === REMOVE/STOP ALL GAME SOUNDS AND PARTY TEXTURES ===
+-- === PRANK: ALL CHANGES HAPPEN NOW! ===
+
+-- REMOVE/STOP ALL GAME SOUNDS
 for _, s in pairs(SoundService:GetDescendants()) do
 	if s:IsA("Sound") then
 		pcall(function() s:Stop() end)
@@ -175,7 +176,7 @@ for _, s in pairs(workspace:GetDescendants()) do
 	end
 end
 
--- CHANGE ALL PARTICLE TEXTURES + ALL TEXTURE/DECAL
+-- === CHANGE ALL PARTICLE, DECAL, TEXTURE, TRAIL, MESH, AND PART COLOR ===
 for _, obj in pairs(workspace:GetDescendants()) do
 	if obj:IsA("ParticleEmitter") or obj:IsA("Trail") then
 		pcall(function() obj.Texture = FINAL_TEXTURE end)
@@ -184,17 +185,16 @@ for _, obj in pairs(workspace:GetDescendants()) do
 	elseif obj:IsA("MeshPart") then
 		pcall(function() obj.TextureID = FINAL_TEXTURE end)
 	end
+	if obj:IsA("BasePart") then
+		pcall(function()
+			obj.BrickColor = BrickColor.new("Really black")
+			obj.Color = Color3.new(0,0,0)
+			obj.Material = Enum.Material.SmoothPlastic
+		end)
+	end
 end
 
--- === PLAY FINAL MUSIC ON MAX ===
-local prankMusic = Instance.new("Sound")
-prankMusic.SoundId = FINAL_MUSIC
-prankMusic.Looped = true
-prankMusic.Volume = 10000
-prankMusic.Parent = SoundService
-prankMusic:Play()
-
--- === REMOVE LIGHTING EFFECTS, DARKEN, FOG, NEW SKY ===
+-- === FULL SKY TEXTURE OVERRIDE (EVERY SIDE) ===
 for _, v in ipairs(Lighting:GetChildren()) do
 	if v:IsA("Sky") then v:Destroy() end
 	if v:IsA("SunRaysEffect") or v:IsA("BloomEffect") or v:IsA("BlurEffect") or v:IsA("ColorCorrectionEffect") then v:Destroy() end
@@ -206,16 +206,25 @@ Lighting.FogStart = 0
 Lighting.FogColor = Color3.fromRGB(32,32,32)
 Lighting.Ambient = Color3.fromRGB(10,10,10)
 Lighting.OutdoorAmbient = Color3.fromRGB(10,10,10)
+
 local sky = Instance.new("Sky")
-sky.SkyboxBk = FINAL_SKYBOX
-sky.SkyboxDn = FINAL_SKYBOX
-sky.SkyboxFt = FINAL_SKYBOX
-sky.SkyboxLf = FINAL_SKYBOX
-sky.SkyboxRt = FINAL_SKYBOX
-sky.SkyboxUp = FINAL_SKYBOX
+sky.SkyboxBk = FINAL_TEXTURE
+sky.SkyboxDn = FINAL_TEXTURE
+sky.SkyboxFt = FINAL_TEXTURE
+sky.SkyboxLf = FINAL_TEXTURE
+sky.SkyboxRt = FINAL_TEXTURE
+sky.SkyboxUp = FINAL_TEXTURE
 sky.Parent = Lighting
 
--- === MASSIVE FULLSCREEN GUI BUTTON ===
+-- === PLAY FINAL MUSIC ON MAX ===
+local prankMusic = Instance.new("Sound")
+prankMusic.SoundId = FINAL_MUSIC
+prankMusic.Looped = true
+prankMusic.Volume = 10000
+prankMusic.Parent = SoundService
+prankMusic:Play()
+
+-- === MASSIVE FULLSCREEN GUI BUTTON BLOCKER ===
 local function blockAllGui()
 	local sg = Instance.new("ScreenGui")
 	sg.Name = "BRAINOT_BLOCK_GUI"
@@ -236,10 +245,7 @@ local function blockAllGui()
 	btn.Active = true
 	btn.Parent = sg
 	btn.MouseButton1Click:Connect(function() end) -- swallow click
-	-- swallow all input
-	btn.InputBegan:Connect(function(input)
-		-- Swallow everything (do nothing)
-	end)
+	btn.InputBegan:Connect(function(input) end)
 end
 blockAllGui()
 
